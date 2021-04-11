@@ -11,6 +11,7 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
   has_feature :versionable
 
   has_feature :install_options
+  has_feature :uninstall_options
 
   if (File.exist?('/usr/local/bin/brew')) then
     @brewbin = '/usr/local/bin/brew'
@@ -96,6 +97,10 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
     Array(resource[:install_options]).flatten.compact
   end
 
+  def uninstall_options
+    Array(resource[:uninstall_options]).flatten.compact
+  end
+
   def latest
     package = self.class.package_list(:justme => resource_name)
     package[:ensure]
@@ -130,7 +135,7 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
   def uninstall
     begin
       Puppet.debug "Uninstalling #{resource_name}"
-      execute([command(:brew), :uninstall, resource_name], :failonfail => true)
+      execute([command(:brew), :uninstall, resource_name, *uninstall_options], :failonfail => true)
     rescue Puppet::ExecutionFailure => detail
       raise Puppet::Error, "Could not uninstall package: #{detail}"
     end
