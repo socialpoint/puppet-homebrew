@@ -1,6 +1,6 @@
 class homebrew::install {
 
-  if $::os::macosx::version::major =~ /12.*/ {
+  if $::os[macosx][version][major] =~ /12.*/ {
     $brew_root_path = '/opt/homebrew'
     $brew_sys_folders = [
       '/opt/homebrew',
@@ -65,7 +65,7 @@ class homebrew::install {
     }
   }
 
-  if $::os::macosx::version::major =~ /^1[01]/ {
+  if $::os[macosx][version][major] =~ /^1[01]/ {
     # Avoid this definition when Monterrey
     $brew_folders = [
       '/usr/local/opt',
@@ -125,7 +125,7 @@ class homebrew::install {
     logoutput   => on_failure,
     timeout     => 0,
   }
-  if $::os::macosx::version::major =~ /^1[01]/ {
+  if $::os[macosx][version][major] =~ /^1[01]/ {
     file { '/usr/local/bin/brew':
       ensure  => 'link',
       target  => '/usr/local/Homebrew/bin/brew',
