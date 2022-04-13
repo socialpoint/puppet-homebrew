@@ -11,7 +11,6 @@ class homebrew::install {
       '/opt/homebrew/sbin',
       '/opt/homebrew/share',
       '/opt/homebrew/share/doc',
-      '/opt/homebrew/share/doc/homebrew',
       '/opt/homebrew/var',
       '/opt/homebrew/opt',
       '/opt/homebrew/share/zsh',

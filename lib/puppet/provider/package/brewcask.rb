@@ -13,12 +13,12 @@ Puppet::Type.type(:package).provide(:brewcask, :parent => Puppet::Provider::Pack
   has_feature :install_options
   has_feature :uninstall_options
 
-  commands :brew => '/usr/local/bin/brew'
+  commands :brew => File.exist?('/usr/local/bin/brew') ? '/usr/local/bin/brew' : '/opt/homebrew/bin/brew'
   commands :stat => '/usr/bin/stat'
 
   def self.execute(cmd, failonfail = false, combine = false)
-    owner = stat('-nf', '%Uu', '/usr/local/bin/brew').to_i
-    group = stat('-nf', '%Ug', '/usr/local/bin/brew').to_i
+    owner = stat('-nf', '%Uu', :brew).to_i
+    group = stat('-nf', '%Ug', :brew).to_i
     home  = Etc.getpwuid(owner).dir
 
     if owner == 0
