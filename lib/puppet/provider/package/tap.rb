@@ -14,8 +14,8 @@ Puppet::Type.type(:package).provide(:tap, :parent => Puppet::Provider::Package) 
   commands :stat => '/usr/bin/stat'
 
   def self.execute(cmd, failonfail = false, combine = false)
-    owner = stat('-nf', '%Uu', :brew).to_i
-    group = stat('-nf', '%Ug', :brew).to_i
+    owner = stat('-nf', '%Uu', command(:brew)).to_i
+    group = stat('-nf', '%Ug', command(:brew)).to_i
     home  = Etc.getpwuid(owner).dir
 
     if owner == 0
