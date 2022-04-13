@@ -111,13 +111,14 @@ Puppet::Type.type(:package).provide(:homebrew, :parent => Puppet::Provider::Pack
 
         Puppet.debug "Package found, installing..."
         output = execute([command(:brew), :install, install_name, *install_options], :failonfail => true)
-
+        Puppet.debug output
         if output =~ /sha256 checksum/
           Puppet.debug "Fixing checksum error..."
           mismatched = output.match(/Already downloaded: (.*)/).captures
           fix_checksum(mismatched)
         end
-      rescue Puppet::ExecutionFailure
+      rescue Puppet::ExecutionFailure => e
+        Puppet.debug "Rescued: #{e.inspect}"
         Puppet.debug "Package #{install_name} not found on Brew. Trying BrewCask..."
         execute(self.class.format_cask_command([command(:brew), :info, install_name]), :failonfail => true)
 
