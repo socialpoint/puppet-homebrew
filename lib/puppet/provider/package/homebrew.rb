@@ -110,8 +110,8 @@ Puppet::Type.type(:package).provide(:homebrew, :parent => Puppet::Provider::Pack
         output = execute([command(:brew), :info, install_name], :failonfail => true)
 
         Puppet.debug "Package found, installing..."
-        output = execute([command(:brew), :install, install_name, *install_options], :failonfail => true)
-        Puppet.debug output
+        output = execute([command(:brew), :install, install_name, *install_options], :failonfail => false)
+        Puppet.debug "#{output}"
         if output =~ /sha256 checksum/
           Puppet.debug "Fixing checksum error..."
           mismatched = output.match(/Already downloaded: (.*)/).captures
