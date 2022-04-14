@@ -37,11 +37,11 @@ Puppet::Type.type(:package).provide(:homebrew, :parent => Puppet::Provider::Pack
     if Puppet.features.bundled_environment?
       Bundler.with_clean_env do
         super(cmd, :uid => uid, :gid => gid, :combine => combine,
-              :custom_environment => { 'HOME' => home }, :failonfail => failonfail)
+              :custom_environment => { 'HOME' => home }, failonfail: failonfail)
       end
     else
       super(cmd, :uid => uid, :gid => gid, :combine => combine,
-            :custom_environment => { 'HOME' => home }, :failonfail => failonfail)
+            :custom_environment => { 'HOME' => home }, failonfail: failonfail)
     end
   end
 
