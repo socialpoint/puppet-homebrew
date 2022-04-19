@@ -5,6 +5,7 @@ class homebrew (
   $github_token               = undef,
   $group                      = 'admin',
   $multiuser                  = false,
+  $arm64_install                = false,
 ) {
 
   if $::operatingsystem != 'Darwin' {
@@ -21,6 +22,11 @@ class homebrew (
   contain '::homebrew::compiler'
   contain '::homebrew::install'
 
+  #Install second homebrew for arm
+  if $homebrew::arm64_install {
+    class { '::homebrew::installarm': }
+    contain '::homebrew::installarm'
+  }
   if $homebrew::github_token {
     file { '/etc/environment': ensure => present }
     -> file_line { 'homebrew-github-api-token':

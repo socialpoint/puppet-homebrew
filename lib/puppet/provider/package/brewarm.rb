@@ -1,7 +1,7 @@
 require 'puppet/provider/package'
 
-Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package) do
-  desc 'Package management using HomeBrew on OSX'
+Puppet::Type.type(:package).provide(:brewarm, :parent => Puppet::Provider::Package) do
+  desc 'Package management using HomeBrew on OSX for arm64'
 
   confine :operatingsystem => :darwin
 
@@ -11,18 +11,17 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
   has_feature :versionable
 
   has_feature :install_options
-  has_feature :uninstall_options
 
-  commands :brew => '/usr/local/bin/brew'
+  commands :brew => '/opt/homebrew/bin/brew'
   commands :stat => '/usr/bin/stat'
 
   def self.execute(cmd, failonfail = false, combine = true)
-    owner = stat('-nf', '%Uu', '/usr/local/bin/brew').to_i
-    group = stat('-nf', '%Ug', '/usr/local/bin/brew').to_i
+    owner = stat('-nf', '%Uu', '/opt/homebrew/bin/brew').to_i
+    group = stat('-nf', '%Ug', '/opt/homebrew/bin/brew').to_i
     home  = Etc.getpwuid(owner).dir
 
     if owner == 0
-      raise Puppet::ExecutionFailure, 'Homebrew does not support installations owned by the "root" user. Please check the permissions of /usr/local/bin/brew'
+      raise Puppet::ExecutionFailure, 'Homebrew does not support installations owned by the "root" user. Please check the permissions of /opt/homebrew/bin/brew'
     end
 
     # the uid and gid can only be set if running as root
@@ -37,11 +36,11 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
     if Puppet.features.bundled_environment?
       Bundler.with_clean_env do
         super(cmd, :uid => uid, :gid => gid, :combine => combine,
-              :custom_environment => { 'HOME' => home }, :failonfail => failonfail)
+              :custom_environment => { 'HOME' => home, 'HOMEBREW_CHANGE_ARCH_TO_ARM' => '1' }, :failonfail => failonfail)
       end
     else
       super(cmd, :uid => uid, :gid => gid, :combine => combine,
-            :custom_environment => { 'HOME' => home }, :failonfail => failonfail)
+            :custom_environment => { 'HOME' => home, 'HOMEBREW_CHANGE_ARCH_TO_ARM' => '1' }, :failonfail => failonfail)
     end
   end
 
@@ -90,10 +89,6 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
     Array(resource[:install_options]).flatten.compact
   end
 
-  def uninstall_options
-    Array(resource[:uninstall_options]).flatten.compact
-  end
-
   def latest
     package = self.class.package_list(:justme => resource_name)
     package[:ensure]
@@ -128,7 +123,7 @@ Puppet::Type.type(:package).provide(:brew, :parent => Puppet::Provider::Package)
   def uninstall
     begin
       Puppet.debug "Uninstalling #{resource_name}"
-      execute([command(:brew), :uninstall, resource_name, *uninstall_options], :failonfail => true)
+      execute([command(:brew), :uninstall, resource_name], :failonfail => true)
     rescue Puppet::ExecutionFailure => detail
       raise Puppet::Error, "Could not uninstall package: #{detail}"
     end
