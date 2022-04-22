@@ -13,7 +13,7 @@ Puppet::Type.type(:package).provide(:homebrew, :parent => Puppet::Provider::Pack
   has_feature :install_options
   has_feature :uninstall_options
 
-  commands :brew => File.exist?('/usr/local/bin/brew') ? '/usr/local/bin/brew' : 'arch -arm64 /opt/homebrew/bin/brew'
+  commands :brew => File.exist?('/usr/local/bin/brew') ? '/usr/local/bin/brew' : '/opt/homebrew/bin/brew'
   commands :stat => '/usr/bin/stat'
 
   def self.execute(cmd, failonfail = false, combine = false)
