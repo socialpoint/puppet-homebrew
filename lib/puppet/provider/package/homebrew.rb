@@ -16,7 +16,7 @@ Puppet::Type.type(:package).provide(:homebrew, :parent => Puppet::Provider::Pack
   commands :brew => '/usr/local/bin/brew'
   commands :stat => '/usr/bin/stat'
 
-  def self.execute(cmd, failonfail = false, combine = false)
+  def self.execute(cmd, failonfail = false, combine = true)
     owner = stat('-nf', '%Uu', '/usr/local/bin/brew').to_i
     group = stat('-nf', '%Ug', '/usr/local/bin/brew').to_i
     home  = Etc.getpwuid(owner).dir

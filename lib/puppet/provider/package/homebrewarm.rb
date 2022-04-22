@@ -114,10 +114,10 @@ Puppet::Type.type(:package).provide(:homebrewarm, :parent => Puppet::Provider::P
         end
       rescue Puppet::ExecutionFailure
         Puppet.debug "Package #{install_name} not found on Brew. Trying BrewCask..."
-        execute([command(:brew), :cask, :info, install_name], :failonfail => true)
+        execute(self.class.format_cask_command([command(:brew), :info, install_name]), :failonfail => true)
 
         Puppet.debug "Package found on brewcask, installing..."
-        output = execute([command(:brew), :cask, :install, install_name, *install_options], :failonfail => true)
+        output = execute(self.class.format_cask_command([command(:brew), :install, install_name, *install_options]), :failonfail => true)
 
         if output =~ /sha256 checksum/
           Puppet.debug "Fixing checksum error..."
@@ -136,7 +136,7 @@ Puppet::Type.type(:package).provide(:homebrewarm, :parent => Puppet::Provider::P
       execute([command(:brew), :uninstall, resource_name], :failonfail => true)
     rescue Puppet::ExecutionFailure
       begin
-        execute([command(:brew), :cask, :uninstall, resource_name], :failonfail => true)
+        execute(self.class.format_cask_command([command(:brew), :uninstall, resource_name, *uninstall_options]), :failonfail => true)
       rescue Puppet::ExecutionFailure => detail
         raise Puppet::Error, "Could not uninstall package: #{detail}"
       end
@@ -154,7 +154,7 @@ Puppet::Type.type(:package).provide(:homebrewarm, :parent => Puppet::Provider::P
       if resource_name = options[:justme]
         result = execute([command(:brew), :list, '--versions', resource_name])
         unless result.include? resource_name
-          result += execute([command(:brew), :cask, :list, '--versions', resource_name])
+          result += execute(format_cask_command([command(:brew), :list, '--versions', resource_name]))
         end
         if result.empty?
           Puppet.debug "Package #{resource_name} not installed"
@@ -163,7 +163,7 @@ Puppet::Type.type(:package).provide(:homebrewarm, :parent => Puppet::Provider::P
         end
       else
         result = execute([command(:brew), :list, '--versions'])
-        result += execute([command(:brew), :cask, :list, '--versions'])
+        result += execute(format_cask_command([command(:brew), :list, '--versions']))
       end
       list = result.lines.map {|line| name_version_split(line)}
     rescue Puppet::ExecutionFailure => detail
@@ -187,6 +187,18 @@ Puppet::Type.type(:package).provide(:homebrewarm, :parent => Puppet::Provider::P
     else
       Puppet.warning "Could not match #{line}"
       nil
+    end
+  end
+
+  def self.format_cask_command(cmd_array)
+    result = execute([command(:brew), '--version'])
+    version_rexp = /(?<version>(\d+\.)+(\d+))/
+    match_data = version_rexp.match result
+    version = Gem::Version.new(match_data['version'])
+    if version >= Gem::Version.new('2.6.0')
+      cmd_array[0..1] + ['--cask'] + cmd_array[2..-1]
+    else
+      [cmd_array[0]] + [:cask] + cmd_array[1..-1]
     end
   end
 end
