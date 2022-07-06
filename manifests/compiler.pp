@@ -1,19 +1,21 @@
 class homebrew::compiler {
 
-  if str2bool($::has_compiler) {
-  } elsif versioncmp($::macosx_productversion_major, '10.7') < 0 {
-    warning('Please install the Command Line Tools bundled with XCode manually!')
-  } elsif ($homebrew::command_line_tools_package and $homebrew::command_line_tools_source) {
-
+  if ! str2bool($::has_compiler) {
     notice('Installing Command Line Tools.')
 
-    package { $homebrew::command_line_tools_package:
-      ensure   => present,
-      provider => pkgdmg,
-      source   => $homebrew::command_line_tools_source,
+    $install_command = '/tmp/install_command_line_tools.sh'
+    file { $install_command :
+      ensure => file,
+      source => 'puppet:///modules/homebrew/install_command_line_tools.sh',
+      owner  => 'root',
+      mode   => '0744',
     }
-  } else {
-    warning('No Command Line Tools detected and no download source set. Please set download sources or install manually.')
-  }
 
+    -> exec { 'Install command line tools':
+      command => $install_command,
+      creates => '/Library/Developer/CommandLineTools/usr/bin',
+      user => 'root',
+      timeout => 60 * 10
+    }
+  }
 }

@@ -17,7 +17,7 @@ Facter.add(:has_compiler) do
   setcode do
     # /usr/bin/cc exists in Mavericks, but it's not real
     if Gem::Version.new(Facter.value(:macosx_productversion_major)) >= Gem::Version.new('10.9')
-      (File.exists?('/Applications/Xcode.app') or File.exists?('/Library/Developer/CommandLineTools/')) and
+      (File.exists?('/Applications/Xcode.app') or File.exists?('/Library/Developer/CommandLineTools/usr/bin')) and
           (File.exists?('/usr/bin/cc') or system('/usr/bin/xcrun -find cc >/dev/null 2>&1'))
     else
       File.exists?('/usr/bin/cc') or system('/usr/bin/xcrun -find cc >/dev/null 2>&1')
