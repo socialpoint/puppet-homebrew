@@ -1,11 +1,16 @@
+ci:
+    autofix_commit_msg: 'refactor(lint): apply automatic lint fixes'
+    autoupdate_commit_msg: 'chore(deps): bump pre-commit linter versions'
+
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v3.3.0
+    rev: v4.3.0
     hooks:
     -   id: check-case-conflict
     -   id: check-executables-have-shebangs
     -   id: check-json
     -   id: check-merge-conflict
+    -   id: check-shebang-scripts-are-executable
     -   id: check-symlinks
     -   id: check-toml
     -   id: check-vcs-permalinks
@@ -20,7 +25,7 @@ repos:
 
 # rst
 -   repo: https://github.com/pre-commit/pygrep-hooks
-    rev: v1.7.0
+    rev: v1.9.0
     hooks:
     -   id: rst-backticks
     -   id: rst-directive-colons
@@ -28,11 +33,11 @@ repos:
 
 # shell
 -   repo: https://github.com/lovesegfault/beautysh
-    rev: 6.0.1
+    rev: v6.2.1
     hooks:
     -   id: beautysh
 -   repo: https://github.com/openstack/bashate
-    rev: 2.0.0
+    rev: 2.1.1
     hooks:
     -   id: bashate
         args: [--max-line-length=80]
