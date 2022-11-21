@@ -1,21 +1,18 @@
 class homebrew::install {
 
-  case $::facts[processors][models][0] {
+  if $::facts[has_arm64] {
     # brew complains if it finds its bin in /usr/local/bin on Apple Silicon
     # so we should put brew where it expects to be
-    /^Apple*/: {
-      $brew_root          = '/opt/homebrew'
-      $inst_dir           = $brew_root
-      $link_bin           = false
-      $brew_folders_extra = []
-    }
-    /^Intel*/: {
-      $brew_root          = '/usr/local'
-      $inst_dir           = "${brew_root}/Homebrew"
-      $link_bin           = true
-      $brew_folders_extra = ["${brew_root}/Homebrew",]
-    }
-    default:   { fail("unknown arch for processor ${::facts[processors][models][0]}") }
+    $brew_root          = '/opt/homebrew'
+    $inst_dir           = $brew_root
+    $link_bin           = false
+    $brew_folders_extra = []
+  }
+  else {
+    $brew_root          = '/usr/local'
+    $inst_dir           = "${brew_root}/Homebrew"
+    $link_bin           = true
+    $brew_folders_extra = ["${brew_root}/Homebrew",]
   }
   $brew_sys_folders = [
     "${brew_root}/bin",
